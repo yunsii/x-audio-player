@@ -21,13 +21,13 @@ async function* getFilesRecursively(entry: FileSystemDirectoryHandle | FileSyste
 
 export function useNativeDir() {
   const [files, setFiles] = useState<NativeFile[]>([])
-  const [error, setError] = useState('')
+  const [usable, setUsable] = useState(true)
 
   useEffect(() => {
     if ('showDirectoryPicker' in window && 'showOpenFilePicker' in window) {
       return
     }
-    setError('Unsupported Native File System API')
+    setUsable(false)
   }, [])
 
   const pickDir = async () => {
@@ -46,5 +46,5 @@ export function useNativeDir() {
     }
   }
 
-  return { files, pickDir, error }
+  return { files, pickDir, usable }
 }

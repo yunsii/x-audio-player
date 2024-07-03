@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 import { useNativeDir } from './hooks/useNativeDir'
 
 export default function Home() {
-  const { files, pickDir, error } = useNativeDir()
+  const { files, pickDir, usable } = useNativeDir()
   const [current, setCurrent] = useState(-1)
 
   return (
@@ -18,7 +19,6 @@ export default function Home() {
       >
         Pick a directory
       </button>
-      {error && <div className='text-red-400'>{error}</div>}
       <ul>
         {files.map((item, index) => {
           return (
@@ -35,6 +35,18 @@ export default function Home() {
         })}
       </ul>
       <audio src={current >= 0 ? URL.createObjectURL(files[current]) : undefined} autoPlay controls />
+
+      {!usable && (
+        <div className='text-red-500'>
+          Your browser do not supported
+          {' '}
+          <Link href='https://caniuse.com/?search=showOpenFilePicker' className='underline'>
+            Native File System API
+          </Link>
+          {' '}
+          for now.
+        </div>
+      )}
     </main>
   )
 }
