@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export interface NativeFile extends File {
   relativePath: string
@@ -21,16 +21,30 @@ async function* getFilesRecursively(entry: FileSystemDirectoryHandle | FileSyste
 
 export function useNativeDir() {
   const [files, setFiles] = useState<NativeFile[]>([])
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if ('showDirectoryPicker' in window && 'showOpenFilePicker' in window) {
+      return
+    }
+    setError('Unsupported Native File System API')
+  }, [])
 
   const pickDir = async () => {
-    const dirHandle = await window.showDirectoryPicker()
+    const dirHandle = await window.showDirectoryPicker({
+      id: 'x-audio-player',
+      startIn: 'music',
+    })
 
     for await (const fileHandle of getFilesRecursively(dirHandle)) {
       setFiles((prev) => {
-        return [...prev, fileHandle]
+        if (['audio/'].some((item) => fileHandle.type.startsWith(item)) || ['.lrc'].some((item) => fileHandle.name.endsWith(item))) {
+          return [...prev, fileHandle]
+        }
+        return prev
       })
     }
   }
 
-  return { files, pickDir }
+  return { files, pickDir, error }
 }

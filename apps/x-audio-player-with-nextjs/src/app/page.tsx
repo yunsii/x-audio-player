@@ -1,9 +1,12 @@
 'use client'
 
+import { useState } from 'react'
+
 import { useNativeDir } from './hooks/useNativeDir'
 
 export default function Home() {
-  const { files, pickDir } = useNativeDir()
+  const { files, pickDir, error } = useNativeDir()
+  const [current, setCurrent] = useState(-1)
 
   return (
     <main>
@@ -15,15 +18,23 @@ export default function Home() {
       >
         Pick a directory
       </button>
+      {error && <div className='text-red-400'>{error}</div>}
       <ul>
-        {files.map((item) => {
+        {files.map((item, index) => {
           return (
-            <li key={item.relativePath}>
+            <li
+              key={item.relativePath}
+              className='cursor-pointer'
+              onClick={() => {
+                setCurrent(index)
+              }}
+            >
               {item.relativePath}
             </li>
           )
         })}
       </ul>
+      <audio src={current >= 0 ? URL.createObjectURL(files[current]) : undefined} autoPlay controls />
     </main>
   )
 }
